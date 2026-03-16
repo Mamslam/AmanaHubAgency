@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "services": "Leistungen",
+    "pricing": "Preise",
+    "about": "Über Uns",
+    "contact": "Kontakt",
+    "cta": "Kostenloses Audit"
+  },
+  "hero": {
+    "headline": "Wir Verwandeln Lokale Unternehmen in Digitale Marktführer",
+    "subheadline": "KI-gestützte Webgestaltung, SEO und Reputationsmanagement — in jeder Sprache.",
+    "cta1": "Kostenlosen Auditbericht Erhalten",
+    "cta2": "Leistungen Ansehen",
+    "stat1": "500+ Betreute Unternehmen",
+    "stat2": "4.9★ Durchschnittsbewertung",
+    "stat3": "3 Sprachen"
+  },
+  "services": {
+    "title": "Unsere Leistungen",
+    "monthly_badge": "Monatlich",
+    "onetime_badge": "Einmalig"
+  },
+  "pricing": {
+    "title": "Preise",
+    "best_value": "Bestes Angebot",
+    "category": "Kategorie",
+    "included": "Was Enthalten Ist",
+    "price_range": "Preisspanne"
+  },
+  "how": {
+    "title": "So Funktioniert Es",
+    "step1": { "title": "Wir Prüfen Ihre Website", "desc": "Kostenloser automatisierter Bericht zu Performance, SEO, Barrierefreiheit und Best Practices." },
+    "step2": { "title": "Wir Präsentieren die Ergebnisse", "desc": "Beratungsgespräch, in dem wir erklären, was behoben werden muss und warum." },
+    "step3": { "title": "Wir Beheben Alles", "desc": "Schlüsselfertige Umsetzung durch unser Expertenteam — Sie konzentrieren sich auf Ihr Geschäft." }
+  },
+  "stats": {
+    "clients": "Kunden",
+    "countries": "Länder",
+    "satisfaction": "Zufriedenheit",
+    "rating": "Bewertung"
+  },
+  "cta": {
+    "headline": "Bereit, Ihr Geschäft Online zu Wachsen?",
+    "button": "Kostenlosen Auditbericht Erhalten"
+  },
+  "footer": {
+    "tagline": "Lokale Unternehmen zum Erfolg in der digitalen Welt verhelfen.",
+    "copyright": "© 2026 AmanaHub. Alle Rechte vorbehalten."
+  }
+}

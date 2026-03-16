@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AmanaHub — Digital Agency Website
 
-## Getting Started
+A multilingual Next.js digital agency landing page with a hidden internal audit portal.
 
-First, run the development server:
+## Setup
 
+### 1. Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Edit `.env.local` and fill in your values:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **ANTHROPIC_API_KEY** — Get from [console.anthropic.com](https://console.anthropic.com)
+- **PORTAL_CODE** — Change to any secure passphrase (default: `AMANAHUB2026`)
 
-## Learn More
+### 3. Run development server
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Accessing the Portal
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The portal is hidden from all public navigation. To access it:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Visit the landing page at `http://localhost:3000/en`
+2. Type the key sequence: **A → M → A → N → A** on your keyboard
+3. A modal will appear — enter the portal code (`AMANAHUB2026` by default)
+4. You will be redirected to `/portal`
 
-## Deploy on Vercel
+Alternatively, navigate directly to `/portal` and enter the code.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Changing the Portal Code
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+In `.env.local`:
+```
+PORTAL_CODE=YOURNEWCODE
+```
+
+## Deploy to Vercel
+
+1. Push to GitHub
+2. Connect repo to Vercel
+3. Add environment variables in Vercel dashboard:
+   - `ANTHROPIC_API_KEY`
+   - `PORTAL_CODE`
+4. Deploy
+
+The portal is automatically excluded from search engines via `robots.txt` and `X-Robots-Tag` headers.
+
+## Languages
+
+The site supports:
+- English (`/en`)
+- French (`/fr`)
+- German (`/de`)

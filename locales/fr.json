@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "services": "Services",
+    "pricing": "Tarifs",
+    "about": "À Propos",
+    "contact": "Contact",
+    "cta": "Audit Gratuit"
+  },
+  "hero": {
+    "headline": "Nous Transformons les Entreprises Locales en Leaders Numériques",
+    "subheadline": "Conception web, référencement et gestion de réputation alimentés par l'IA — dans toutes les langues.",
+    "cta1": "Obtenir un Rapport d'Audit Gratuit",
+    "cta2": "Voir les Services",
+    "stat1": "500+ Entreprises Servies",
+    "stat2": "4.9★ Note Moyenne",
+    "stat3": "3 Langues"
+  },
+  "services": {
+    "title": "Nos Services",
+    "monthly_badge": "Mensuel",
+    "onetime_badge": "Unique"
+  },
+  "pricing": {
+    "title": "Tarifs de Correction",
+    "best_value": "Meilleure Valeur",
+    "category": "Catégorie",
+    "included": "Ce qui est Inclus",
+    "price_range": "Fourchette de Prix"
+  },
+  "how": {
+    "title": "Comment Ça Marche",
+    "step1": { "title": "Nous Auditons Votre Site", "desc": "Rapport automatique gratuit couvrant performance, SEO, accessibilité et bonnes pratiques." },
+    "step2": { "title": "Nous Présentons les Résultats", "desc": "Appel de consultation avec présentation de ce qui doit être corrigé et pourquoi." },
+    "step3": { "title": "Nous Corrigeons Tout", "desc": "Mise en œuvre clé en main par notre équipe d'experts — concentrez-vous sur votre business." }
+  },
+  "stats": {
+    "clients": "Clients",
+    "countries": "Pays",
+    "satisfaction": "Satisfaction",
+    "rating": "Note"
+  },
+  "cta": {
+    "headline": "Prêt à Développer Votre Activité en Ligne ?",
+    "button": "Obtenir Votre Rapport d'Audit Gratuit"
+  },
+  "footer": {
+    "tagline": "Aider les entreprises locales à prospérer dans le monde numérique.",
+    "copyright": "© 2026 AmanaHub. Tous droits réservés."
+  }
+}

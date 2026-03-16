@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "services": "Services",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact",
+    "cta": "Get Free Audit"
+  },
+  "hero": {
+    "headline": "We Transform Local Businesses Into Digital Leaders",
+    "subheadline": "AI-powered web design, SEO, and reputation management that puts your business on the map — in any language.",
+    "cta1": "Get Free Audit Report",
+    "cta2": "View Services",
+    "stat1": "500+ Businesses Served",
+    "stat2": "4.9★ Average Rating",
+    "stat3": "3 Languages"
+  },
+  "services": {
+    "title": "What We Do",
+    "monthly_badge": "Monthly",
+    "onetime_badge": "One-Time"
+  },
+  "pricing": {
+    "title": "Audit Fix Pricing",
+    "best_value": "Best Value",
+    "category": "Category",
+    "included": "What's Included",
+    "price_range": "Price Range"
+  },
+  "how": {
+    "title": "How It Works",
+    "step1": { "title": "We Audit Your Website", "desc": "Free automated report covering performance, SEO, accessibility, and best practices." },
+    "step2": { "title": "We Present the Findings", "desc": "Branded consultation call walking you through exactly what needs fixing and why." },
+    "step3": { "title": "We Fix Everything", "desc": "Done-for-you implementation by our expert team — you focus on running your business." }
+  },
+  "stats": {
+    "clients": "Clients",
+    "countries": "Countries",
+    "satisfaction": "Satisfaction",
+    "rating": "Rating"
+  },
+  "cta": {
+    "headline": "Ready to Grow Your Business Online?",
+    "button": "Get Your Free Audit Report Today"
+  },
+  "footer": {
+    "tagline": "Empowering local businesses to thrive in the digital world.",
+    "copyright": "© 2026 AmanaHub. All rights reserved."
+  }
+}
