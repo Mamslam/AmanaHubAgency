@@ -14,6 +14,7 @@ const pageTitles: Record<string, string> = {
   '/command/pipeline':  'Pipeline CRM',
   '/command/delivery':  'Delivery Tracker',
   '/command/billing':   'Billing',
+  '/command/scraper':   'Smart Scraper',
   '/command/analytics': 'Analytics',
   '/command/settings':  'Settings',
 }

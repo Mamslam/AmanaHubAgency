@@ -9,6 +9,7 @@ const navItems = [
   { href: '/command/dashboard', icon: '🏠', label: 'Dashboard' },
   { href: '/command/leads',     icon: '📥', label: 'Leads' },
   { href: '/command/audit',     icon: '🔍', label: 'Audit' },
+  { href: '/command/scraper',   icon: '🌐', label: 'Scraper' },
   { href: '/command/outreach',  icon: '📧', label: 'Outreach' },
   { href: '/command/agent',     icon: '🤖', label: 'Agent' },
   { href: '/command/pipeline',  icon: '💼', label: 'Pipeline' },

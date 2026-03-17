@@ -36,7 +36,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const lead = await prisma.lead.findUnique({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       include: { audits: true, emails: true, deals: { include: { invoices: true, deliverables: true } } },
     })
     if (!lead) { res.status(404).json({ error: 'Lead not found' }); return }
@@ -57,7 +57,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const lead = await prisma.lead.update({ where: { id: req.params.id }, data: req.body })
+    const lead = await prisma.lead.update({ where: { id: req.params.id as string }, data: req.body })
     res.json(lead)
   } catch (err: any) {
     res.status(400).json({ error: err.message })
@@ -66,7 +66,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    await prisma.lead.delete({ where: { id: req.params.id } })
+    await prisma.lead.delete({ where: { id: req.params.id as string } })
     res.json({ success: true })
   } catch (err: any) {
     res.status(400).json({ error: err.message })

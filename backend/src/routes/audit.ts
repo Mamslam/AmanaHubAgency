@@ -52,7 +52,7 @@ router.post('/run', async (req: AuthRequest, res: Response) => {
 router.get('/:leadId', async (req: AuthRequest, res: Response) => {
   try {
     const audits = await prisma.audit.findMany({
-      where: { leadId: req.params.leadId },
+      where: { leadId: req.params.leadId as string },
       orderBy: { createdAt: 'desc' },
     })
     res.json(audits)
