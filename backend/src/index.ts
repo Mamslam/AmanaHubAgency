@@ -10,6 +10,7 @@ import authRouter from './routes/auth'
 import leadsRouter from './routes/leads'
 import agentRouter from './routes/agent'
 import auditRouter from './routes/audit'
+import settingsRouter from './routes/settings'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/leads', leadsRouter)
 app.use('/api/agent', agentRouter)
 app.use('/api/audit', auditRouter)
+app.use('/api/settings', settingsRouter)
 
 // WebSocket
 const server = createServer(app)

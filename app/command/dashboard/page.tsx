@@ -1,9 +1,14 @@
 'use client'
-import { mockLeads, mockKPIs, mockAgentLogs, mockNotifications, mockRevenueData, mockFunnelData } from '@/lib/mock-data'
+import { useEffect, useState, useRef } from 'react'
+import { mockKPIs, mockRevenueData, mockFunnelData } from '@/lib/mock-data'
+import { api } from '@/lib/command-api'
+import { getAgentWS } from '@/lib/websocket'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import type { LeadStatus } from '@/types'
 
-// Pipeline stage config
+type AgentStatus = 'IDLE' | 'RUNNING' | 'PAUSED'
+type Log = { id: string; message: string; level: string; createdAt: string }
+
 const PIPELINE_STAGES: { status: LeadStatus; label: string; color: string }[] = [
   { status: 'PROSPECT',    label: 'Prospect',     color: '#94a3b8' },
   { status: 'AUDITED',     label: 'Audited',      color: '#2DD4BF' },
@@ -14,6 +19,12 @@ const PIPELINE_STAGES: { status: LeadStatus; label: string; color: string }[] = 
   { status: 'DELIVERED',   label: 'Delivered',    color: '#38bdf8' },
 ]
 
+const STATUS_COLOR: Record<AgentStatus, string> = {
+  IDLE: '#dc2626',
+  RUNNING: '#4ade80',
+  PAUSED: '#fbbf24',
+}
+
 const CARD_STYLE = {
   background: 'rgba(255,255,255,0.03)',
   border: '1px solid rgba(255,255,255,0.07)',
@@ -22,9 +33,71 @@ const CARD_STYLE = {
 }
 
 export default function DashboardPage() {
+  const [agentStatus, setAgentStatus] = useState<AgentStatus>('IDLE')
+  const [logs, setLogs] = useState<Log[]>([])
+  const [leads, setLeads] = useState<{ status: LeadStatus }[]>([])
+  const [agentLoading, setAgentLoading] = useState(false)
+  const logsEndRef = useRef<HTMLDivElement>(null)
+
+  // Fetch initial data
+  useEffect(() => {
+    api.get<{ status: AgentStatus }>('/agent/status')
+      .then(r => setAgentStatus(r.status))
+      .catch(() => {}) // backend may not be running
+
+    api.get<Log[]>('/agent/logs')
+      .then(setLogs)
+      .catch(() => {})
+
+    api.get<{ leads: { status: LeadStatus }[] }>('/leads')
+      .then(r => setLeads(r.leads))
+      .catch(() => {})
+  }, [])
+
+  // WebSocket for real-time logs + status
+  useEffect(() => {
+    const ws = getAgentWS()
+    ws.connect()
+
+    const unsubLog = ws.onLog((msg) => {
+      setLogs(prev => [...prev.slice(-99), {
+        id: String(Date.now()),
+        message: msg.message,
+        level: msg.level,
+        createdAt: msg.ts,
+      }])
+    })
+
+    const unsubStatus = ws.onStatus((status) => {
+      setAgentStatus(status as AgentStatus)
+    })
+
+    return () => {
+      unsubLog()
+      unsubStatus()
+    }
+  }, [])
+
+  // Auto-scroll logs
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [logs])
+
+  const handleAgent = async (action: 'start' | 'pause' | 'stop') => {
+    setAgentLoading(true)
+    try {
+      const res = await api.post<{ status: AgentStatus }>(`/agent/${action}`, {})
+      setAgentStatus(res.status)
+    } catch (e: any) {
+      console.error(e)
+    } finally {
+      setAgentLoading(false)
+    }
+  }
+
   const leadsByStatus = PIPELINE_STAGES.map(s => ({
     ...s,
-    count: mockLeads.filter(l => l.status === s.status).length
+    count: leads.filter(l => l.status === s.status).length,
   }))
 
   const trendLeads = ((mockKPIs.leadsThisMonth - mockKPIs.leadsLastMonth) / mockKPIs.leadsLastMonth * 100)
@@ -37,12 +110,14 @@ export default function DashboardPage() {
     fontSize: '13px',
   }
 
+  const statusColor = STATUS_COLOR[agentStatus]
+
   return (
     <div className="animate-fadeIn" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
         {[
-          { label: 'Leads This Month', value: mockKPIs.leadsThisMonth, sub: `vs ${mockKPIs.leadsLastMonth} last month`, trend: trendLeads, icon: '📥', color: '#2DD4BF' },
+          { label: 'Leads This Month', value: leads.length || mockKPIs.leadsThisMonth, sub: `vs ${mockKPIs.leadsLastMonth} last month`, trend: trendLeads, icon: '📥', color: '#2DD4BF' },
           { label: 'Emails Sent', value: mockKPIs.emailsSentThisMonth, sub: 'this month', icon: '📧', color: '#C9A84C' },
           { label: 'Reply Rate', value: `${mockKPIs.replyRate}%`, sub: 'of emails sent', icon: '↩️', color: '#4ade80' },
           { label: 'Revenue This Month', value: `€${mockKPIs.revenueThisMonth.toLocaleString()}`, sub: '+ €750 recurring', icon: '💰', color: '#C9A84C' },
@@ -68,33 +143,44 @@ export default function DashboardPage() {
       {/* Row 2: Agent status + Pipeline summary */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
         {/* Agent Status */}
-        <div style={{ ...CARD_STYLE, border: '1px solid rgba(220,38,38,0.3)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #dc2626, transparent)' }} />
+        <div style={{ ...CARD_STYLE, border: `1px solid ${statusColor}44`, position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: `linear-gradient(90deg, ${statusColor}, transparent)` }} />
           <div style={{ fontSize: '12px', color: 'rgba(242,237,228,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>Agent Status</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <span className="status-dot status-idle" style={{ width: '12px', height: '12px' }} />
-            <span style={{ fontSize: '22px', fontWeight: 700, color: '#dc2626' }}>IDLE</span>
+            <span
+              style={{
+                width: '12px', height: '12px', borderRadius: '50%',
+                background: statusColor,
+                boxShadow: agentStatus === 'RUNNING' ? `0 0 8px ${statusColor}` : 'none',
+                animation: agentStatus === 'RUNNING' ? 'pulse 1.5s infinite' : 'none',
+              }}
+            />
+            <span style={{ fontSize: '22px', fontWeight: 700, color: statusColor }}>{agentStatus}</span>
           </div>
           <div style={{ fontSize: '13px', color: 'rgba(242,237,228,0.5)', marginBottom: '4px' }}>
-            Last run: Today 10:45 AM
-          </div>
-          <div style={{ fontSize: '13px', color: 'rgba(242,237,228,0.5)', marginBottom: '4px' }}>
-            Next: Tomorrow 08:00 AM
+            Queue: <span style={{ color: '#C9A84C', fontWeight: 600 }}>{leads.filter(l => l.status === 'PROSPECT').length} leads</span>
           </div>
           <div style={{ fontSize: '13px', color: 'rgba(242,237,228,0.5)', marginBottom: '20px' }}>
-            Queue: <span style={{ color: '#C9A84C', fontWeight: 600 }}>12 leads</span>
+            Total: <span style={{ color: '#F2EDE4', fontWeight: 600 }}>{leads.length} in CRM</span>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             {[
-              { label: '▶ Start', bg: 'rgba(22,163,74,0.15)', color: '#4ade80', border: 'rgba(22,163,74,0.3)' },
-              { label: '⏸ Pause', bg: 'rgba(217,119,6,0.12)', color: '#fbbf24', border: 'rgba(217,119,6,0.3)' },
-              { label: '⏹ Stop', bg: 'rgba(220,38,38,0.12)', color: '#f87171', border: 'rgba(220,38,38,0.3)' },
+              { label: '▶ Start', action: 'start' as const, bg: 'rgba(22,163,74,0.15)', color: '#4ade80', border: 'rgba(22,163,74,0.3)', disabled: agentStatus === 'RUNNING' },
+              { label: '⏸ Pause', action: 'pause' as const, bg: 'rgba(217,119,6,0.12)', color: '#fbbf24', border: 'rgba(217,119,6,0.3)', disabled: agentStatus !== 'RUNNING' },
+              { label: '⏹ Stop', action: 'stop' as const, bg: 'rgba(220,38,38,0.12)', color: '#f87171', border: 'rgba(220,38,38,0.3)', disabled: agentStatus === 'IDLE' },
             ].map((btn) => (
-              <button key={btn.label} style={{
-                flex: 1, padding: '7px 4px', fontSize: '12px', fontWeight: 600,
-                background: btn.bg, color: btn.color, border: `1px solid ${btn.border}`,
-                borderRadius: '6px', cursor: 'pointer',
-              }}>{btn.label}</button>
+              <button
+                key={btn.label}
+                disabled={btn.disabled || agentLoading}
+                onClick={() => handleAgent(btn.action)}
+                style={{
+                  flex: 1, padding: '7px 4px', fontSize: '12px', fontWeight: 600,
+                  background: btn.bg, color: btn.color, border: `1px solid ${btn.border}`,
+                  borderRadius: '6px', cursor: btn.disabled ? 'not-allowed' : 'pointer',
+                  opacity: btn.disabled ? 0.4 : 1,
+                  transition: 'opacity 0.2s',
+                }}
+              >{btn.label}</button>
             ))}
           </div>
         </div>
@@ -118,11 +204,10 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-          {/* Mini progress bar */}
           <div style={{ marginTop: '16px' }}>
             <div style={{ display: 'flex', height: '6px', borderRadius: '3px', overflow: 'hidden', gap: '1px' }}>
               {leadsByStatus.map((s) => {
-                const pct = mockLeads.length ? (s.count / mockLeads.length) * 100 : 0
+                const pct = leads.length ? (s.count / leads.length) * 100 : 0
                 return pct > 0 ? (
                   <div key={s.status} style={{ flex: pct, background: s.color, opacity: 0.8, minWidth: '2px' }} title={`${s.label}: ${s.count}`} />
                 ) : null
@@ -134,7 +219,6 @@ export default function DashboardPage() {
 
       {/* Row 3: Charts */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {/* Revenue Chart */}
         <div style={CARD_STYLE}>
           <div style={{ fontSize: '12px', color: 'rgba(242,237,228,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>Revenue (last 6 months)</div>
           <ResponsiveContainer width="100%" height={200}>
@@ -150,7 +234,6 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Funnel */}
         <div style={CARD_STYLE}>
           <div style={{ fontSize: '12px', color: 'rgba(242,237,228,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>Conversion Funnel</div>
           <ResponsiveContainer width="100%" height={200}>
@@ -165,31 +248,46 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 4: Recent Activity */}
+      {/* Row 4: Live Agent Logs */}
       <div style={CARD_STYLE}>
-        <div style={{ fontSize: '12px', color: 'rgba(242,237,228,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '16px' }}>Recent Activity</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {mockAgentLogs.slice(0, 12).map((log, i) => (
-            <div
-              key={log.id}
-              className="animate-fadeIn"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                padding: '8px 10px',
-                borderRadius: '6px',
-                animationDelay: `${i * 0.04}s`,
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-            >
-              <span style={{ fontSize: '11px', color: 'rgba(242,237,228,0.3)', flexShrink: 0, fontFamily: 'monospace', paddingTop: '1px' }}>
-                {new Date(log.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-              </span>
-              <span className={`log-${log.level}`} style={{ fontSize: '13px', lineHeight: 1.4, fontFamily: 'monospace' }}>{log.message}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ fontSize: '12px', color: 'rgba(242,237,228,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Agent Logs
+            {agentStatus === 'RUNNING' && (
+              <span style={{ marginLeft: '8px', fontSize: '10px', color: '#4ade80', background: 'rgba(22,163,74,0.15)', padding: '2px 6px', borderRadius: '4px' }}>LIVE</span>
+            )}
+          </div>
+          <span style={{ fontSize: '11px', color: 'rgba(242,237,228,0.3)' }}>{logs.length} entries</span>
+        </div>
+        <div className="cc-scroll" style={{ maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          {logs.length === 0 ? (
+            <div style={{ padding: '20px', textAlign: 'center', color: 'rgba(242,237,228,0.25)', fontSize: '13px' }}>
+              No logs yet. Start the agent to see activity.
             </div>
-          ))}
+          ) : (
+            logs.slice(-50).map((log, i) => (
+              <div
+                key={log.id}
+                className="animate-fadeIn"
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '8px 10px',
+                  borderRadius: '6px',
+                  animationDelay: `${i * 0.02}s`,
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <span style={{ fontSize: '11px', color: 'rgba(242,237,228,0.3)', flexShrink: 0, fontFamily: 'monospace', paddingTop: '1px' }}>
+                  {new Date(log.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+                <span className={`log-${log.level}`} style={{ fontSize: '13px', lineHeight: 1.4, fontFamily: 'monospace' }}>{log.message}</span>
+              </div>
+            ))
+          )}
+          <div ref={logsEndRef} />
         </div>
       </div>
     </div>
