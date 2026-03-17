@@ -8,7 +8,10 @@
       "Bash(npm init:*)",
       "Bash(npx prisma:*)",
       "Bash(node -e \"const p = require\\(''./node_modules/prisma/package.json''\\); console.log\\(p.version\\)\")",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(git reset:*)",
+      "Bash(PGPASSWORD=\"\" psql -h 127.0.0.1 -U postgres -c \"\\\\l\")"
     ],
     "additionalDirectories": [
       "/home/tall/Repos/AmanaHubAgency/app"
