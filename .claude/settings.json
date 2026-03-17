@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm list:*)",
+      "Bash(node -e \"const ni = require\\(''/home/tall/Repos/AmanaHubAgency/node_modules/next-intl''\\); console.log\\(Object.keys\\(ni\\)\\)\")",
+      "Bash(git add:*)",
+      "Bash(npm init:*)",
+      "Bash(npx prisma:*)",
+      "Bash(node -e \"const p = require\\(''./node_modules/prisma/package.json''\\); console.log\\(p.version\\)\")",
+      "Bash(npx ts-node:*)"
+    ],
+    "additionalDirectories": [
+      "/home/tall/Repos/AmanaHubAgency/app"
+    ]
+  }
+}

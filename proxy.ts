@@ -6,5 +6,5 @@ export default createMiddleware({
 })
 
 export const config = {
-  matcher: ['/((?!api|portal|_next|.*\\..*).*)']
+  matcher: ['/((?!api|portal|command|_next|.*\\..*).*)']
 }
